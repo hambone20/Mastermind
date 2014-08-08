@@ -1,60 +1,51 @@
 import collection.mutable.ArrayBuffer
 import util.Random
 
-class Field {
-	//Mastermind.maxGuesses
-	//Mastermind.numLetters
-	//Mastermind.numSpots
-	
+class Field (val maxGuesses: Int = 8, numLetters: Int = 4, numSpots: Int = 4){
 	var currentGuess = 0
-	val guesses = ArrayBuffer[Guess]()
 	var win = false
+	var pattern = makePattern()	
+	val guesses = (for (_ <- 0 until maxGuesses) 
+	  yield new Guess(numSpots)) (scala.collection.breakOut)
 	
-	val pattern = makePattern()
-	
-	for(x <- 0 until Mastermind.maxGuesses){guesses += new Guess(Mastermind.numSpots)}
-	
-	clearField()
-	
-	def clearField() = Unit
-	
-	def makePattern() = {
-	  val a = 97
-	  var arr = ArrayBuffer[String]()
-	  for(x <- 0 until Mastermind.numSpots){
-	    arr += ((a + Random.nextInt(Mastermind.numLetters)).toChar).toString
+	def makePattern() : String = {
+	  def randLetter() : Char = {
+	    (97 + Random.nextInt(numLetters)).toChar
 	  }
-	  arr.toArray
+	  (for(_ <- 0 until numSpots)  yield randLetter()) (scala.collection.breakOut)
 	}
 	
 	def testGuess(guess: String) = {
-	  var result = ArrayBuffer[String]()
-	  var testPattern = pattern
-	  var testGuess = guess.toArray
-	  guesses(currentGuess).setPattern(guess)
-	  //var used = ArrayBuffer[Int]()
+	  var result = ArrayBuffer[Char]()
+	  guesses(currentGuess).pattern = guess
+	  var testPattern = pattern toBuffer
+	  var testGuess = guess toBuffer
+	  var numHits = 0
+	  
 	  assert(guess.length == pattern.length, {println("oops guess not long enough")})
 	  // have to make two passes
 
-	  for(i <- 0 until Mastermind.numLetters){
-		  if(testGuess(i).toString == testPattern(i)){
-		    result += "R" 
-		    testPattern(i) = "Z"
-		    testGuess(i) = 'Z'
+	  // TODO refactor this with zip?
+	  for(i <- 0 until numLetters){
+		  if(testGuess(i) == testPattern(i)){
+		    result += 'R' 
+		    numHits += 1
+		    testPattern(i) = 'Z' // marking this as used
+		    testGuess(i) = 'Z'   // and this
 		  }
-		  if(Mastermind.debug)println(s"pattern: ${testPattern.mkString} for R")
 	  }
-	  for(j <- 0 until Mastermind.numLetters){
-	    if (testGuess(j) != 'Z' && testPattern.contains(testGuess(j).toString)){
-		    result += "W"
-		    testPattern(testPattern.indexOf(guess(j).toString)) = "Z"
-		    if(Mastermind.debug)println(s"${testPattern.mkString} for W")
+	  for(j <- 0 until numLetters){
+	    if (testGuess(j) != 'Z' && testPattern.contains(testGuess(j))){
+		    result += 'W'
+		    testPattern(testPattern.indexOf(guess(j))) = 'Z'
 		  }
 
 	  }
-	  guesses(currentGuess).setFeedback(Random.shuffle(result))
+	  assert(result.length <= numLetters, {println("Returned result is too long")})
+	  guesses(currentGuess).feedback = Random.shuffle(result).mkString
 	  
-	  if(result.mkString == "R" * Mastermind.numLetters) win = true
+	  win = numHits == numLetters
+	  
 	  currentGuess += 1
 	  result
 	}

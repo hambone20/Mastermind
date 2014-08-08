@@ -1,23 +1,23 @@
 /** Nick Horner - Mastermind game */
 
 object Mastermind extends App{
-  val maxGuesses = 8
-  val numLetters = 4
-  val numSpots   = 4
-  val debug = true
+  val debug = false
   
   val field = new Field
   
-  while(!field.checkWin){
+  while(!field.checkWin && field.currentGuess < field.maxGuesses){
       println(field)
-      val guess = readLine()
-      if(debug)println(s"(${field.pattern.mkString})")
+      val guess: String = scala.io.StdIn.readLine()
+      
       if(guess == "show"){
         println(s"(${field.pattern.mkString})")
-      }else{
+      } else {
     	  field.testGuess(guess)
       }
   }
-  if(field.checkWin)println("You win!")
-  else println("You lose")
+  if(field.checkWin){
+    println("You win!")
+  } else {
+    println("You lose")
+  }
 }

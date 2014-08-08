@@ -1,7 +1,7 @@
 import collection.mutable.ArrayBuffer
 import util.Random
 
-class Field (val maxGuesses: Int = 8, numLetters: Int = 4, numSpots: Int = 4){
+class Field (val maxGuesses: Int = 8, val numLetters: Int = 4, val numSpots: Int = 4){
 	var currentGuess = 0
 	var win = false
 	var pattern = makePattern()	

@@ -7,12 +7,15 @@ object Mastermind extends App{
   
   while(!field.checkWin && field.currentGuess < field.maxGuesses){
       println(field)
-      val guess: String = scala.io.StdIn.readLine()
+      print(s"Input your ${field.numSpots} letter sequence guess ('show' to cheat): ")
       
-      if(guess == "show"){
-        println(s"(${field.pattern.mkString})")
-      } else {
-    	  field.testGuess(guess)
+      var guess: String = scala.io.StdIn.readLine()
+      if (guess.length == field.numSpots) {
+        if(guess == "show"){
+          println(s"(${field.pattern.mkString})")
+        } else {
+      	  field.testGuess(guess)
+        }
       }
   }
   if(field.checkWin){

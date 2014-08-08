@@ -1,0 +1,1 @@
+Mastermind, an implementation of the classic board game of induction.
